@@ -1,5 +1,5 @@
 ID: Hana_native_dev
-_schema-version: "2.1"
+_schema-version: '2.1'
 description: try Git
 parameters:
   deploy_mode: html5-repo
@@ -13,11 +13,18 @@ modules:
       memory: 256M
     requires:
       - name: Hana_native_dev_html5_repo_runtime
+      - name: uaa_Hana_native_dev
   - name: Hana_native_dev_ui_deployer
     type: com.sap.html5.application-content
     path: Hana_native_dev_ui_deployer
     requires:
       - name: Hana_native_dev_html5_repo_host
+    build-parameters:
+      requires:
+        - name: web
+          artifacts:
+            - './*'
+          target-path: resources/web
   - name: Hana_native_dev-db
     type: hdb
     path: db
@@ -35,9 +42,10 @@ modules:
     provides:
       - name: srv_api
         properties:
-          url: ${default-url}
+          url: '${default-url}'
     requires:
       - name: Hana_native_dev-db-hdi-container
+  
 resources:
   - name: Hana_native_dev_html5_repo_runtime
     parameters:
@@ -52,4 +60,15 @@ resources:
   - name: Hana_native_dev-db-hdi-container
     type: com.sap.xs.hdi-container
     properties:
-      hdi-container-name: ${service-name}
+      hdi-container-name: '${service-name}'
+  - name: uaa_Hana_native_dev
+    parameters:
+      path: ./xs-security.json
+      service-plan: application
+      service: xsuaa
+    type: org.cloudfoundry.managed-service
+  - name: dest_Hana_native_dev
+    parameters:
+      service-plan: lite
+      service: destination
+    type: org.cloudfoundry.managed-service
